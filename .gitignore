@@ -1,0 +1,75 @@
+# .gitignore
+
+tailwindcss
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.log
+*.pot
+*.egg-info/
+dist/
+build/
+*.egg
+*.so
+*.swp
+*__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Django
+*.sqlite3
+*.db
+*.db-journal
+media/
+
+# PyCharm
+.idea/
+*.iml
+*.iws
+
+# React
+node_modules/
+/build/
+.npm/
+.yarn/
+yarn.lock
+package-lock.json
+.env
+.env.local
+.env.production
+.env.test
+
+# Operating systems
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Miscellaneous
+*.sqlite3
+*.bak
+*.cache
+*.gz
+*.json
+*.orig
+*.rej
+*.retry
+*.swo
+*.swp
+*.tmp
+*.DS_Store
+*.class
+*.jar
+*.war
+*.ear
+*.msi
+*.exe
+*.app
