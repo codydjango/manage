@@ -14,7 +14,8 @@ mng fb -h
 mng fb p -p 'matt.m' -m 'matt was giving wenwen good feedback, really put in the effort to help wenwen grow'
 mng fb c -p 'matt.m' -m 'matt was late this morning again'
 mng fb n -m 'had a meeting and wenwen was late' -p wenwen
-mng fb n -m 'had a meeting and wenwen was late' -p wenwen -t tag1
+mng fb n -m 'had a meeting and wenwen was late' -p wenwen -t scalability
+mng fb report -p wenwen # show all feedback for wenwen
 
 # TASK TRACKER (Work)
 
@@ -37,6 +38,8 @@ mng ttr -m # show a report scoped to the month
 mng rm -m "get build out" --due today@5pm -w 100 -r 1hr -rb 1hr # remind in one hour to get the build out, remind one hour before it's due, give weight of 100 in todo list (ordered by reverse weight)
 mng rm -m "read brendan greg article on performance" -r 1d # remind me in one day to read the article
 mng rm -m "watch the video on the new feature" --due "15/12/2020" -rb 1d # remind me 1 day before the due date
+mng rm # show all upcoming reminders
+mng rm "get build out" -b 1d # bump the reminder for "get build out" by one day
 
 # TODO (PERSONAL)
 mng td 
@@ -57,15 +60,22 @@ mng td
     -t movies drama prison "stephen king"
     -a watch
 
-mng td -it # show list of all todo items sorted by time index
-mng td -iw # show list of all todo items sorted by weight index
-mng td -ic # show list of all todo items sorted by cool index
+`mng td -it # show list of all todo items sorted by time index`
+`mng td -iw # show list of all todo items sorted by weight index`
+`mng td -ic # show list of all todo items sorted by cool index`
 
 # NOTES (general notes for context, optimized for tag search and full-text search)
 
 this could take two options, quick notes and long notes, in a manner similar to git commit. 
 quick notes would be a single line, long notes would be a multiline message.
 
-`mng note 'echo r > /var/run/uwsgi/app.fifo; # restart a uwsgi process' -t uwsgi` for single line quick
-`mng note` to open up a program for multi-line notes
+`mng note 'echo r > /var/run/uwsgi/app.fifo; # restart a uwsgi process' -t uwsgi # for single line quick`
+`mng note # to open up a program for multi-line notes`
 
+`mng search note -t uwsgi # search for notes with tag uwsgi`
+`mng search note -m uwsgi # search for notes with message that contains the word "uwsgi"`
+`mng search fb -p wenwen -m "refactor" # search through wenwen's feedback for note container work "refactor"`
+`mng search fb -m "refactor" # search through wenwen's feedback for note container work "refactor"`
+`mng search -t wsgi # search through all tags`
+`mng search -m wsgi # search through all messages`
+`mng search # open interactive search that will do live search as you type` 
