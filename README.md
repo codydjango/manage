@@ -69,13 +69,24 @@ mng td
 this could take two options, quick notes and long notes, in a manner similar to git commit. 
 quick notes would be a single line, long notes would be a multiline message.
 
-`mng note 'echo r > /var/run/uwsgi/app.fifo; # restart a uwsgi process' -t uwsgi # for single line quick`
-`mng note # to open up a program for multi-line notes`
+`mng nt 'echo r > /var/run/uwsgi/app.fifo; # restart a uwsgi process' -t uwsgi # for single line quick`
+`mng nt # to open up a program for multi-line notes`
 
-`mng search note -t uwsgi # search for notes with tag uwsgi`
-`mng search note -m uwsgi # search for notes with message that contains the word "uwsgi"`
-`mng search fb -p wenwen -m "refactor" # search through wenwen's feedback for note container work "refactor"`
-`mng search fb -m "refactor" # search through wenwen's feedback for note container work "refactor"`
-`mng search -t wsgi # search through all tags`
-`mng search -m wsgi # search through all messages`
-`mng search # open interactive search that will do live search as you type` 
+`mng fd nt -t uwsgi # search for notes with tag uwsgi`
+`mng fd nt -m uwsgi # search for notes with message that contains the word "uwsgi"`
+`mng fd fb -p wenwen -m "refactor" # search through wenwen's feedback for note container work "refactor"`
+`mng fd fb -m "refactor" # search through wenwen's feedback for note container work "refactor"`
+`mng fd -t wsgi # search through all tags`
+`mng fd -m wsgi # search through all messages`
+`mng fd # open interactive search that will do live search as you type` 
+
+
+`mng nt -m "use xor filters for fast search. it works like a bloom filter. it's a space efficient, fast, probabilistic data structure." -t "full-text-search"`
+`mng nt -m "look at meilisearch or tantivy for rust-based full-text search crates" -t "full-text-search" "rust" "search"`
+
+https://github.com/Textualize/rich-cli
+https://github.com/Textualize/rich
+https://github.com/Textualize/frogmouth
+https://github.com/Textualize/trogon
+https://www.textualize.io/
+https://github.com/Textualize
