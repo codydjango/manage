@@ -37,15 +37,13 @@ class Notes(App):
         else:
             self.output()
 
-    def init(self):
+    def setup(self):
         with NoteStorage() as store:
-            store.create_table()
-            store.commit()
+            store.setup()
 
     def add(self, note: str):
         with NoteStorage() as store:
             store.add(note)
-            store.commit()
 
     def output(self):
         with NoteStorage() as store:
@@ -54,7 +52,6 @@ class Notes(App):
     def remove(self, pk: str):
         with NoteStorage() as store:
             store.remove(pk)
-            store.commit()
 
 
 @click.command()
