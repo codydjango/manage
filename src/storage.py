@@ -1,8 +1,11 @@
 import sqlite3
+import os
+from pathlib import Path
 
+DATABASE_PATH = os.path.join(Path(__file__).resolve().parent, 'database.db')
 
 def get_connection():
-    return sqlite3.connect('database.db')
+    return sqlite3.connect(DATABASE_PATH)
 
 class ConnectionException(Exception):
     def __init__(self, message, *errors):
