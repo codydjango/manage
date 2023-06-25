@@ -13,13 +13,16 @@ class ConnectionException(Exception):
         Exception.__init__(self, message)
         self.errors = errors
 
-class SqliteEngine:
+class SqliteAdapter:
     def __init__(self):
         try:
             self.conn = get_connection()
         except Exception as e:
             raise ConnectionException(*e.args, **e.kwargs)
         self._complete = False
+
+    def execute(self, sql):
+        self.conn.cursor().execute(sql)
 
     def commit(self):
         self._complete = True
@@ -55,7 +58,8 @@ class StorageInterface(ABC):
 
 class NoteStorage(StorageInterface):
     def __init__(self):
-        self.engine = SqliteEngine()
+        self.engine = SqliteAdapter()
+        self.table_name = 'notes'
 
     def __enter__(self):
         return self
@@ -63,23 +67,29 @@ class NoteStorage(StorageInterface):
     def __exit__(self, type_, value, traceback):
         self.engine.close()
 
-    def setup(self):
+    def reset(self):
         try:
-            self.engine.conn.cursor().execute('CREATE TABLE IF NOT EXISTS notes (id INTEGER PRIMARY KEY AUTOINCREMENT, note TEXT)')
+            self.engine.execute(f'DROP TABLE IF EXISTS {self.table_name}')
             self.engine.commit()
         except Exception as e:
             raise ConnectionException('error creating notes table', *e.args)
 
+        try:
+            self.engine.execute(f'CREATE TABLE IF NOT EXISTS {self.table_name} (id INTEGER PRIMARY KEY AUTOINCREMENT, note TEXT, timestamp TEXT)')
+            self.engine.commit()
+        except Exception as e:
+            raise ConnectionException(f'error creating {self.table_name} table', *e.args)
+
     def add(self, note: str):
         try:
-            self.engine.conn.cursor().execute('INSERT INTO notes (note) VALUES (?)', (note,))
+            self.engine.execute(f'INSERT INTO {self.table_name} (note, timestamp) VALUES (?, CURRENT_TIMESTAMP)', (note,))
             self.engine.commit()
         except Exception as e:
             raise ConnectionException('error storing note', *e.args)
 
     def remove(self, pk: str):
         try:
-            self.engine.conn.cursor().execute('DELETE FROM notes WHERE id=(?)', (pk,))
+            self.engine.execute(f'DELETE FROM {self.table_name} WHERE id=(?)', (pk,))
             self.engine.commit()
         except Exception as e:
             raise ConnectionException('error removing note', *e.args)
@@ -87,8 +97,8 @@ class NoteStorage(StorageInterface):
     def get(self):
         data = []
         try:
-            for r in self.engine.conn.cursor().execute('SELECT * FROM notes'):
-                data.append((r[0], r[1]))
+            for r in self.engine.execute(f'SELECT * FROM {self.table_name}'):
+                data.append(r)
             return data
         except Exception as e:
             raise ConnectionException('error getting notes', *e.args)

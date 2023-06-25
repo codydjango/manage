@@ -6,69 +6,28 @@ from rich import print as rprint
 from rich.pretty import pprint
 from rich.console import Console
 
-from storage import NoteStorage
+from notes import Notes
 
 console = Console()
 
-DEBUG = False
-
-class App:
-    def _output(self: str, message):
-        # click.echo(message)
-        pprint(message, expand_all=True)
-        # console.log(message)
-
-    def _log(self, message):
-        console.log(message)
-
-class Notes(App):
-    def __init__(self, *args, **kwargs):
-        if DEBUG:
-            self._log(args)
-            self._log(kwargs)
-
-        delete = kwargs.get('delete')
-        message = kwargs.get('message')
-
-        if message:
-            self.add(note=message)
-        elif delete:
-            self.remove(pk=delete)
-        else:
-            self.output()
-
-    def setup(self):
-        with NoteStorage() as store:
-            store.setup()
-
-    def add(self, note: str):
-        with NoteStorage() as store:
-            store.add(note)
-
-    def output(self):
-        with NoteStorage() as store:
-            self._output(store.get())
-
-    def remove(self, pk: str):
-        with NoteStorage() as store:
-            store.remove(pk)
 
 
 @click.command()
 @click.argument('app')
-@click.option('-m', '--message')
-@click.option('-d', '--delete')
+@click.option('-m', '--message', help="A message to store, similar to a git commit message.")
+@click.option('-cb', '--clipboard', default=False, is_flag=True, help="Paste from clipboard.")
+@click.option('-d', '--delete', help="delete an entity by it's primary key.")
+@click.option('-t', '--tag', help="Add a tag to the note to keep things organized.")
+@click.option('-p', '--person', help="A specialized tag for people.")
 @click.option('-db', '--debug', default=False, is_flag=True, help="Enable debug mode.")
+@click.option('-r', '--reset', default=False, is_flag=True, help="Reset DB.")
 def mng(app, *args, **kwargs):
-    """entrypoint"""
-
-    global DEBUG
-
-    if kwargs.get('debug'):
-        DEBUG = True
+    """Entrypoint for the application."""
 
     if app == 'nt':
         Notes(*args, **kwargs)
+    else:
+        click.echo('Invalid app: {}'.format(app))
 
 if __name__ == '__main__':
     mng()
