@@ -7,6 +7,7 @@ from rich.pretty import pprint
 from rich.console import Console
 
 from notes import Notes
+from todo import Todo
 
 console = Console()
 
@@ -21,13 +22,16 @@ console = Console()
 @click.option('-p', '--person', help="A specialized tag for people.")
 @click.option('-db', '--debug', default=False, is_flag=True, help="Enable debug mode.")
 @click.option('-r', '--reset', default=False, is_flag=True, help="Reset DB.")
+@click.option('-tw', '--weight', help="Task weight.")
+@click.option('-tp', '--points', help="Task points.")
 def mng(app, *args, **kwargs):
     """Entrypoint for the application."""
 
-    if app == 'nt':
-        Notes(*args, **kwargs)
-    else:
+    try:
+        {'nt': Notes, 'td': Todo}[app](*args, **kwargs)
+    except KeyError:
         click.echo('Invalid app: {}'.format(app))
+
 
 if __name__ == '__main__':
     mng()
