@@ -19,13 +19,12 @@ class TableOutput:
     def output_all(self, content: List):
         from rich.table import Table
         table = Table(title="Notes")
-        table.add_column("ID", justify="right", style="cyan", no_wrap=True)
+        table.add_column("ID", justify="left", style="cyan", no_wrap=True)
         table.add_column("Note", style="magenta")
-        table.add_column("Tags", style="green")
-        table.add_column("Timestamp", justify="right", style="blue")
+        table.add_column("Timestamp", justify="right", style="blue", no_wrap=True)
 
         for item in content:
-            table.add_row(str(item[0]), item[1], item[2], item[3])
+            table.add_row(str(item[0]), item[1], item[2])
 
         console.print(table)
 

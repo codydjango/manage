@@ -21,8 +21,8 @@ class SqliteAdapter:
             raise ConnectionException(*e.args, **e.kwargs)
         self._complete = False
 
-    def execute(self, sql):
-        self.conn.cursor().execute(sql)
+    def execute(self, sql, params=()):
+        return self.conn.cursor().execute(sql, params)
 
     def commit(self):
         self._complete = True
@@ -85,6 +85,7 @@ class NoteStorage(StorageInterface):
             self.engine.execute(f'INSERT INTO {self.table_name} (note, timestamp) VALUES (?, CURRENT_TIMESTAMP)', (note,))
             self.engine.commit()
         except Exception as e:
+            print(e)
             raise ConnectionException('error storing note', *e.args)
 
     def remove(self, pk: str):
@@ -96,6 +97,9 @@ class NoteStorage(StorageInterface):
 
     def get(self):
         data = []
+        assert self.engine
+        assert self.engine.execute
+        assert self.table_name
         try:
             for r in self.engine.execute(f'SELECT * FROM {self.table_name}'):
                 data.append(r)
