@@ -1,9 +1,9 @@
 import sqlite3
 import os
-from abc import ABC, abstractmethod
-from pathlib import Path
 
-DATABASE_PATH = os.path.join(Path(__file__).resolve().parent, 'database.db')
+from abc import ABC, abstractmethod
+
+DATABASE_PATH = os.path.join('/home/codydjango/work/manage/em', 'database.db')
 
 def get_connection():
     return sqlite3.connect(DATABASE_PATH)
@@ -139,7 +139,7 @@ class TodoStorage(StorageInterface):
                                 f'weight INTEGER, '
                                 f'points INTEGER, '
                                 f'completed INTEGER DEFAULT 0, '                                   
-                                f'timestamp TEXT '
+                                f'timestamp TEXT, '
                                 f'timestamp_complete TEXT '
                                 f')')
             self.engine.commit()
@@ -160,10 +160,10 @@ class TodoStorage(StorageInterface):
 
     def complete(self, pk: str):
         try:
-            self.engine.execute(f'UPDATE {self.table_name} set completed = 1 and timestamp_complete = CURRENT_TIMESTAMP WHERE id = ?', (pk,))
+            self.engine.execute(f'UPDATE {self.table_name} set completed = 1, timestamp_complete = CURRENT_TIMESTAMP WHERE id = ?', (pk,))
             self.engine.commit()
         except Exception as e:
-            raise ConnectionException('error deleting item', *e.args)
+            raise ConnectionException('error completing item', *e.args)
 
     def remove(self, pk: str):
         try:
@@ -175,7 +175,7 @@ class TodoStorage(StorageInterface):
     def get(self, complete: bool = False):
         data = []
         try:
-            for r in self.engine.execute(f'SELECT id, weight, points, task FROM {self.table_name} WHERE completed = ? ORDER BY weight DESC', (1 if complete else 0,)):
+            for r in self.engine.execute(f'SELECT id, weight, points, task, timestamp, timestamp_complete FROM {self.table_name} WHERE completed = ? ORDER BY weight DESC', (1 if complete else 0,)):
                 data.append(r)
             return data
         except Exception as e:

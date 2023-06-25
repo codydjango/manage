@@ -2,8 +2,8 @@ import click
 from typing import List
 from rich.console import Console
 
-from app import App
-from storage import TodoStorage
+from em.app import App
+from em.storage import TodoStorage
 
 console = Console()
 

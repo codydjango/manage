@@ -2,8 +2,8 @@ import click
 
 from rich.console import Console
 
-from app import App
-from storage import NoteStorage
+from em.app import App
+from em.storage import NoteStorage
 
 console = Console()
 

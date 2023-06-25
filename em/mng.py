@@ -2,16 +2,8 @@
 
 import click
 
-from rich import print as rprint
-from rich.pretty import pprint
-from rich.console import Console
-
-from notes import Notes
-from todo import Todo
-
-console = Console()
-
-
+from em.notes import Notes
+from em.todo import Todo
 
 @click.command()
 @click.argument('app')
@@ -24,8 +16,9 @@ console = Console()
 @click.option('-r', '--reset', default=False, is_flag=True, help="Reset DB.")
 @click.option('-tw', '--weight', help="Task weight.")
 @click.option('-tp', '--points', help="Task points.")
-def mng(app, *args, **kwargs):
-    """Entrypoint for the application."""
+@click.option('-tc', '--complete', help="Mark a task as complete.")
+def main(app, *args, **kwargs):
+    """Entrypoint for the commandline application."""
 
     try:
         {'nt': Notes, 'td': Todo}[app](*args, **kwargs)
@@ -34,4 +27,4 @@ def mng(app, *args, **kwargs):
 
 
 if __name__ == '__main__':
-    mng()
+    main()
