@@ -1,9 +1,9 @@
 import sqlite3
-import os
+import json
 
 from abc import ABC, abstractmethod
+from settings import DATABASE_PATH
 
-DATABASE_PATH = os.path.join('/home/codydjango/work/manage/em', 'database.db')
 
 def get_connection():
     return sqlite3.connect(DATABASE_PATH)
@@ -17,11 +17,13 @@ class SqliteAdapter:
     def __init__(self):
         try:
             self.conn = get_connection()
+            self.conn.row_factory = sqlite3.Row
         except Exception as e:
             raise ConnectionException(*e.args, **e.kwargs)
         self._complete = False
 
     def execute(self, sql, params=()):
+        print(sql, params)
         return self.conn.cursor().execute(sql, params)
 
     def commit(self):
@@ -57,17 +59,13 @@ class StorageInterface(ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    def __enter__(self):
+    def reset(self, *args, **kwargs):
         raise NotImplementedError()
 
-    @abstractmethod
-    def __exit__(self, type_, value, traceback):
-        raise NotImplementedError()
-
-class NoteStorage(StorageInterface):
+class Storage:
     def __init__(self):
         self.engine = SqliteAdapter()
-        self.table_name = 'notes'
+        self.table_name = None
 
     def __enter__(self):
         return self
@@ -75,108 +73,33 @@ class NoteStorage(StorageInterface):
     def __exit__(self, type_, value, traceback):
         self.engine.close()
 
-    def reset(self):
-        try:
-            self.engine.execute(f'DROP TABLE IF EXISTS {self.table_name}')
-            self.engine.commit()
-        except Exception as e:
-            raise ConnectionException('error dropping table', *e.args)
-
-        try:
-            self.engine.execute(f'CREATE TABLE IF NOT EXISTS {self.table_name} (id INTEGER PRIMARY KEY AUTOINCREMENT, note TEXT, timestamp TEXT)')
-            self.engine.commit()
-        except Exception as e:
-            raise ConnectionException(f'error creating table', *e.args)
-
-    def add(self, note: str):
-        try:
-            self.engine.execute(f'INSERT INTO {self.table_name} (note, timestamp) VALUES (?, CURRENT_TIMESTAMP)', (note,))
-            self.engine.commit()
-        except Exception as e:
-            print(e)
-            raise ConnectionException('error storing item', *e.args)
-
-    def remove(self, pk: str):
-        try:
-            self.engine.execute(f'DELETE FROM {self.table_name} WHERE id=(?)', (pk,))
-            self.engine.commit()
-        except Exception as e:
-            raise ConnectionException('error deleting item', *e.args)
-
-    def get(self):
-        data = []
-        try:
-            for r in self.engine.execute(f'SELECT * FROM {self.table_name}'):
-                data.append(r)
-            return data
-        except Exception as e:
-            raise ConnectionException('error retrieving items', *e.args)
+    def export(self):
+        data = json.dumps(self.engine.execute(f'SELECT * FROM {self.table_name}', ()).fetchall())
+        with open(f'./data/{self.table_name}.json', 'w') as the_file:
+            the_file.write(data)
 
 
-class TodoStorage(StorageInterface):
-    def __init__(self):
-        self.engine = SqliteAdapter()
-        self.table_name = 'todo'
 
-    def __enter__(self):
-        return self
 
-    def __exit__(self, type_, value, traceback):
-        self.engine.close()
 
-    def reset(self):
-        try:
-            self.engine.execute(f'DROP TABLE IF EXISTS {self.table_name}')
-            self.engine.commit()
-        except Exception as e:
-            raise ConnectionException('error deleting table', *e.args)
 
-        try:
-            self.engine.execute(f'CREATE TABLE IF NOT EXISTS {self.table_name} '
-                                f'('
-                                f'id INTEGER PRIMARY KEY AUTOINCREMENT, '
-                                f'task TEXT, '
-                                f'weight INTEGER, '
-                                f'points INTEGER, '
-                                f'completed INTEGER DEFAULT 0, '                                   
-                                f'timestamp TEXT, '
-                                f'timestamp_complete TEXT '
-                                f')')
-            self.engine.commit()
-        except Exception as e:
-            raise ConnectionException(f'error creating table', *e.args)
 
-    def add(self, task: str, weight: int, points: int):
-        try:
-            self.engine.execute(f'INSERT INTO {self.table_name} (task, weight, points, timestamp) VALUES ('
-                                f'?, '
-                                f'?, '
-                                f'?, '
-                                f'CURRENT_TIMESTAMP)', (task, weight, points))
-            self.engine.commit()
-        except Exception as e:
-            print(e)
-            raise ConnectionException('error storing item', *e.args)
 
-    def complete(self, pk: str):
-        try:
-            self.engine.execute(f'UPDATE {self.table_name} set completed = 1, timestamp_complete = CURRENT_TIMESTAMP WHERE id = ?', (pk,))
-            self.engine.commit()
-        except Exception as e:
-            raise ConnectionException('error completing item', *e.args)
 
-    def remove(self, pk: str):
-        try:
-            self.engine.execute(f'DELETE FROM {self.table_name} WHERE id=(?)', (pk,))
-            self.engine.commit()
-        except Exception as e:
-            raise ConnectionException('error deleting item', *e.args)
 
-    def get(self, complete: bool = False):
-        data = []
-        try:
-            for r in self.engine.execute(f'SELECT id, weight, points, task, timestamp, timestamp_complete FROM {self.table_name} WHERE completed = ? ORDER BY weight DESC', (1 if complete else 0,)):
-                data.append(r)
-            return data
-        except Exception as e:
-            raise ConnectionException('error retrieving items', *e.args)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
