@@ -3,7 +3,7 @@ import click
 from abc import ABC
 from rich.console import Console
 
-from settings import DEBUG
+from em.settings import DEBUG
 
 console = Console()
 

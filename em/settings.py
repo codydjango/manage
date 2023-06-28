@@ -11,7 +11,8 @@ DATABASE_PATH = os.path.join('/home/codydjango/work/manage/em', 'database.db')
 def get_database_path():
     pth = user_data_dir(APPNAME, APPAUTHOR)
     print(pth)
-    return pth
+    return DATABASE_PATH
+    # return pth
 
 def get_fixture_path():
     pth = site_data_dir(APPNAME, APPAUTHOR)

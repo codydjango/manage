@@ -3,7 +3,7 @@
 import click
 
 from em.apps import Notes, Todo, Reminder
-from settings import set_debug
+from em.settings import set_debug
 
 
 @click.group()
@@ -45,8 +45,11 @@ def rm(*args, **kwargs):
     Reminder(*args, **kwargs)
 
 
-if __name__ == '__main__':
+def main():
     cli.add_command(nt)
     cli.add_command(td)
     cli.add_command(rm)
     cli()
+
+if __name__ == '__main__':
+    main()

@@ -2,11 +2,11 @@ import sqlite3
 import json
 
 from abc import ABC, abstractmethod
-from settings import DATABASE_PATH
+from em.settings import get_database_path
 
 
 def get_connection():
-    return sqlite3.connect(DATABASE_PATH)
+    return sqlite3.connect(get_database_path())
 
 class ConnectionException(Exception):
     def __init__(self, message, *errors):

@@ -109,9 +109,12 @@ This command line app is built on top of other good apps.
 - https://www.textualize.io/
 - https://github.com/Textualize
 
-# BUILD PACKAGE
+# DEV NOTES
+
 How to build the package and install it locally.
 
 - `python setup.py sdist bdist_wheel # to build package`
 - `pip install dist/em-0.1-py3-none-any.whl # to install package`
 - `pip install --force-reinstall dist/em-0.1-py3-none-any.whl # to reinstall package`
+
+`export PYTHONPATH="${PYTHONPATH}:/home/codydjango/work/manage"`
