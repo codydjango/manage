@@ -1,5 +1,5 @@
-from .notes import Notes
-from .todo import Todo
-from .reminder import Reminder
+from .notes import nt
+from .todo import td
+from .reminder import rm
 
-__all__ = ['Notes', 'Todo', 'Reminder']
+__all__ = ['nt', 'td', 'rm']

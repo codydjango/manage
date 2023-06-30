@@ -2,7 +2,7 @@ import sqlite3
 import json
 
 from abc import ABC, abstractmethod
-from em.settings import get_database_path
+from em.settings import DEBUG, get_database_path
 
 
 def get_connection():
@@ -23,7 +23,8 @@ class SqliteAdapter:
         self._complete = False
 
     def execute(self, sql, params=()):
-        print(sql, params)
+        if DEBUG:
+            print(sql, params)
         return self.conn.cursor().execute(sql, params)
 
     def commit(self):

@@ -9,6 +9,20 @@ console = Console()
 
 APPNAME = 'todo'
 
+
+@click.option('-m', '--message', type=click.STRING, help="A message describing the task.")
+@click.option('-tw', '--weight', default=10, type=click.INT, help="Task weight.")
+@click.option('-tp', '--points', default=1, type=click.INT, help="Task points.")
+@click.option('-tc', '--complete', type=click.INT, help="Mark a task as complete.")
+@click.option('-sc', '--completed', type=click.BOOL, default=False, is_flag=True, help="Show completed tasks.")
+@click.option('-rm', '--delete', type=click.INT, help="delete an entity by it's primary key.")
+@click.option('-dbr', '--reset', default=False, is_flag=True, help="Reset DB.")
+@click.command()
+def td(*args, **kwargs):
+    click.echo('todo')
+    Todo(*args, **kwargs)
+
+
 def output(content: List):
     from rich.table import Table
 
@@ -94,8 +108,9 @@ class Todo(App):
         reset = kwargs.get('reset')
         delete = kwargs.get('delete')
         complete = kwargs.get('complete')
-        weight = kwargs.get('weight')
-        points = kwargs.get('points')
+        completed = kwargs.get('completed')
+        weight = kwargs.get('weight', 10)
+        points = kwargs.get('points', 1)
         message = kwargs.get('message')
 
         self.storage_cls = TodoStorage
@@ -109,7 +124,7 @@ class Todo(App):
         elif complete:
             self.complete(pk=complete)
         else:
-            self.output()
+            self.output(completed=completed)
 
     def add(self, note: str, weight: int = 0, points: int = 0):
         with self.storage_cls() as store:
@@ -119,6 +134,6 @@ class Todo(App):
         with self.storage_cls() as store:
             store.complete(pk)
 
-    def output(self):
+    def output(self, completed: bool):
         with self.storage_cls() as store:
-            output(store.get())
+            output(store.get(completed))
