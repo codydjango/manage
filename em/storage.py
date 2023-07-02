@@ -15,11 +15,8 @@ class ConnectionException(Exception):
 
 class SqliteAdapter:
     def __init__(self):
-        try:
-            self.conn = get_connection()
-            self.conn.row_factory = sqlite3.Row
-        except Exception as e:
-            raise ConnectionException(*e.args, **e.kwargs)
+        self.conn = get_connection()
+        self.conn.row_factory = sqlite3.Row
         self._complete = False
 
     def execute(self, sql, params=()):

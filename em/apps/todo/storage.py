@@ -1,47 +1,10 @@
-import click
-from typing import List
-from rich.console import Console
-
-from em.app import App
 from em.storage import Storage, StorageInterface, ConnectionException
-
-console = Console()
-
-APPNAME = 'todo'
-
-
-@click.option('-m', '--message', type=click.STRING, help="A message describing the task.")
-@click.option('-tw', '--weight', default=10, type=click.INT, help="Task weight.")
-@click.option('-tp', '--points', default=1, type=click.INT, help="Task points.")
-@click.option('-tc', '--complete', type=click.INT, help="Mark a task as complete.")
-@click.option('-sc', '--completed', type=click.BOOL, default=False, is_flag=True, help="Show completed tasks.")
-@click.option('-rm', '--delete', type=click.INT, help="delete an entity by it's primary key.")
-@click.option('-dbr', '--reset', default=False, is_flag=True, help="Reset DB.")
-@click.command()
-def td(*args, **kwargs):
-    click.echo('todo')
-    Todo(*args, **kwargs)
-
-
-def output(content: List):
-    from rich.table import Table
-
-    table = Table(title=APPNAME.capitalize())
-    table.add_column("ID", justify="left", style="cyan", no_wrap=True)
-    table.add_column("Weight", justify="left", style="blue", no_wrap=True)
-    table.add_column("Points", justify="left", style="blue", no_wrap=True)
-    table.add_column("Task", style="magenta")
-
-    for item in content:
-        table.add_row(str(item['id']), str(item['weight']), str(item['points']), item['task'])
-
-    console.print(table)
 
 
 class TodoStorage(Storage, StorageInterface):
     def __init__(self):
         super().__init__()
-        self.table_name = APPNAME.lower()
+        self.table_name = 'todo'
 
 
     def reset(self):
@@ -100,40 +63,3 @@ class TodoStorage(Storage, StorageInterface):
             return data
         except Exception as e:
             raise ConnectionException('error retrieving items', *e.args)
-
-class Todo(App):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        reset = kwargs.get('reset')
-        delete = kwargs.get('delete')
-        complete = kwargs.get('complete')
-        completed = kwargs.get('completed')
-        weight = kwargs.get('weight', 10)
-        points = kwargs.get('points', 1)
-        message = kwargs.get('message')
-
-        self.storage_cls = TodoStorage
-
-        if reset:
-            self.reset()
-        elif message:
-            self.add(note=message, weight=weight, points=points)
-        elif delete:
-            self.remove(pk=delete)
-        elif complete:
-            self.complete(pk=complete)
-        else:
-            self.output(completed=completed)
-
-    def add(self, note: str, weight: int = 0, points: int = 0):
-        with self.storage_cls() as store:
-            store.add(note, weight, points)
-
-    def complete(self, pk: str):
-        with self.storage_cls() as store:
-            store.complete(pk)
-
-    def output(self, completed: bool):
-        with self.storage_cls() as store:
-            output(store.get(completed))

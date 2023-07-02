@@ -3,16 +3,17 @@ from appdirs import user_data_dir, site_data_dir, user_cache_dir, user_log_dir
 
 APPNAME = 'EM'
 APPAUTHOR = 'codydjango'
-
+DB_NAME = 'database.db'
 DEBUG = False
 
-DATABASE_PATH = os.path.join('/home/codydjango/work/manage/em', 'database.db')
-
 def get_database_path():
-    pth = user_data_dir(APPNAME, APPAUTHOR)
+    pth = os.path.join(user_data_dir(APPNAME, APPAUTHOR), DB_NAME)
     print(pth)
-    return DATABASE_PATH
-    # return pth
+
+    if not os.path.exists(pth):
+        os.makedirs(pth)
+
+    return pth
 
 def get_fixture_path():
     pth = site_data_dir(APPNAME, APPAUTHOR)

@@ -2,14 +2,14 @@
 
 import click
 
-from em.apps import nt, td, rm
+from em.apps import td, rm, nt
 from em.settings import set_debug
 
 
 @click.group()
 @click.option('-db', '--debug', default=False, is_flag=True, help="Enable debug mode.")
 def cli(*args, **kwargs):
-    """Entrypoint for the commandline application."""
+    """EM: Flywheel for engineering management."""
 
     set_debug(kwargs.get('debug'))
 
