@@ -14,6 +14,14 @@ def get_database_path() -> str:
 
     return os.path.join(dir_path, DB_NAME)
 
+def get_export_path(filename: str) -> str:
+    dir_path = user_data_dir(APPNAME, APPAUTHOR, 'exported')
+
+    if not os.path.exists(dir_path):
+        os.makedirs(dir_path)
+
+    return os.path.join(dir_path, filename)
+
 def get_fixture_path() -> str:
     return site_data_dir(APPNAME, APPAUTHOR)
 

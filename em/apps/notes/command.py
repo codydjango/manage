@@ -7,6 +7,7 @@ from .app import Notes
 @click.option('-t', '--tag', type=click.STRING, help="Add a tag to keep things organized.")
 @click.option('-rm', '--delete', type=click.INT, help="delete an entity by it's primary key.")
 @click.option('-dbr', '--reset', type=click.BOOL, default=False, is_flag=True, help="Reset DB.")
+@click.option('-dbe', '--export', type=click.BOOL, default=False, is_flag=True, help="Export DB.")
 @click.command()
 def nt(*args, **kwargs):
     Notes(*args, **kwargs)

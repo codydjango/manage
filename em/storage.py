@@ -2,12 +2,11 @@ import sqlite3
 import json
 
 from abc import ABC, abstractmethod
-from em.settings import DEBUG, get_database_path
+from em.settings import DEBUG, get_database_path, get_export_path
 
 
 def get_connection():
     pth = get_database_path()
-    print(pth)
     try:
         conn = sqlite3.connect(pth)
     except sqlite3.OperationalError as e:
@@ -71,6 +70,10 @@ class Storage:
         self.engine = SqliteAdapter()
         self.table_name = None
 
+    @property
+    def export_path(self):
+        return get_export_path(f'{self.table_name}.json')
+
     def __enter__(self):
         return self
 
@@ -78,9 +81,12 @@ class Storage:
         self.engine.close()
 
     def export(self):
-        data = json.dumps(self.engine.execute(f'SELECT * FROM {self.table_name}', ()).fetchall())
-        with open(f'./data/{self.table_name}.json', 'w') as the_file:
-            the_file.write(data)
+        rows = self.engine.execute(f'SELECT * FROM {self.table_name}', ()).fetchall()
+        with open(self.export_path, 'w') as the_file:
+            for row in rows:
+                the_file.write(json.dumps(dict(row)))
+                the_file.write('\n')
+
 
 
 

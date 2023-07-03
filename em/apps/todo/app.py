@@ -9,8 +9,8 @@ from em.app import App
 console = Console()
 
 APPNAME = 'todo'
-def output(content: List):
-    table = Table(title=APPNAME.capitalize())
+def output(content: List, points: int):
+    table = Table(title=f'{APPNAME.capitalize()} ({points})')
     table.add_column("ID", justify="left", style="cyan", no_wrap=True)
     table.add_column("Weight", justify="left", style="blue", no_wrap=True)
     table.add_column("Points", justify="left", style="blue", no_wrap=True)
@@ -33,6 +33,7 @@ class Todo(App):
         weight = kwargs.get('weight', 10)
         points = kwargs.get('points', 1)
         message = kwargs.get('message')
+        export = kwargs.get('export')
 
         self.storage_cls = TodoStorage
 
@@ -44,6 +45,8 @@ class Todo(App):
             self.remove(pk=delete)
         elif complete:
             self.complete(pk=complete)
+        elif export:
+            self.export()
         else:
             self.output(completed=completed)
 
@@ -57,4 +60,4 @@ class Todo(App):
 
     def output(self, completed: bool):
         with self.storage_cls() as store:
-            output(store.get(completed))
+            output(content=store.get(completed), points=store.get_points())

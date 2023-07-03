@@ -34,6 +34,7 @@ class Notes(App):
         delete = kwargs.get('delete')
         message = kwargs.get('message')
         clipboard = kwargs.get('clipboard')
+        export = kwargs.get('export')
 
         self.storage_cls = NoteStorage
 
@@ -45,6 +46,8 @@ class Notes(App):
             self.add(note=get_clipboard())
         elif delete:
             self.remove(pk=delete)
+        elif export:
+            self.export()
         else:
             self.output()
 

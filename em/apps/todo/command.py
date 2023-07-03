@@ -9,6 +9,7 @@ from .app import Todo
 @click.option('-sc', '--completed', type=click.BOOL, default=False, is_flag=True, help="Show completed tasks.")
 @click.option('-rm', '--delete', type=click.INT, help="delete an entity by it's primary key.")
 @click.option('-dbr', '--reset', default=False, is_flag=True, help="Reset DB.")
+@click.option('-dbe', '--export', type=click.BOOL, default=False, is_flag=True, help="Export DB.")
 @click.command()
 def td(*args, **kwargs):
     Todo(*args, **kwargs)

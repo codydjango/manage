@@ -31,6 +31,7 @@ class Reminder(App):
         delete = kwargs.get('delete')
         message = kwargs.get('message')
         date = kwargs.get('date')
+        export = kwargs.get('export')
 
         self.storage_cls = ReminderStorage
 
@@ -40,6 +41,8 @@ class Reminder(App):
             self.add(message=message, date=parse_date(date).isoformat())
         elif delete:
             self.remove(pk=delete)
+        elif export:
+            self.export()
         else:
             self.output()
 

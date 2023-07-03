@@ -63,3 +63,10 @@ class TodoStorage(Storage, StorageInterface):
             return data
         except Exception as e:
             raise ConnectionException('error retrieving items', *e.args)
+
+    def get_points(self):
+        try:
+            row = self.engine.execute(f'SELECT SUM(points) FROM {self.table_name} WHERE completed = 1', ()).fetchone()
+            return row[0]
+        except Exception as e:
+            raise ConnectionException('error retrieving items', *e.args)
