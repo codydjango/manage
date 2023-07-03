@@ -6,7 +6,13 @@ from em.settings import DEBUG, get_database_path
 
 
 def get_connection():
-    return sqlite3.connect(get_database_path())
+    pth = get_database_path()
+    print(pth)
+    try:
+        conn = sqlite3.connect(pth)
+    except sqlite3.OperationalError as e:
+        raise ConnectionException(f'Unable to connect to database using path: {pth}', e.args)
+    return conn
 
 class ConnectionException(Exception):
     def __init__(self, message, *errors):

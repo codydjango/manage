@@ -26,7 +26,7 @@ def bump_year_if_date_in_past(date: datetime) -> datetime:
 
     return date
 
-def parse_date(datestr: str):
+def parse_date(datestr: str) -> datetime:
     input_string = re.sub(r'(\d+)(st|nd|rd|th)', r'\1', datestr)
     year_input = find_year(input_string)
     default_date = datetime(datetime.now().year, 1, 1, tzinfo=tz.tzlocal()) # use local timezone

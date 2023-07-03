@@ -5,6 +5,7 @@ from rich.table import Table
 
 from em.app import App
 from em.parsers import parse_date
+from .storage import ReminderStorage
 
 APPNAME = 'reminder'
 console = Console()

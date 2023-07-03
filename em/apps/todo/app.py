@@ -2,6 +2,7 @@ from typing import List
 
 from rich.console import Console
 from rich.table import Table
+from .storage import TodoStorage
 
 from em.app import App
 

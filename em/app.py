@@ -20,7 +20,7 @@ class App(ABC):
         console.log(message)
 
     def remove(self, pk: str):
-        if not click.confirm(f'Are you sure you want to delete the item?'):
+        if not click.confirm(f'Are you sure you want to remove this item?'):
             return
 
         with self.storage_cls() as store:

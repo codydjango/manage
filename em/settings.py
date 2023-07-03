@@ -6,25 +6,20 @@ APPAUTHOR = 'codydjango'
 DB_NAME = 'database.db'
 DEBUG = False
 
-def get_database_path():
-    pth = os.path.join(user_data_dir(APPNAME, APPAUTHOR), DB_NAME)
-    print(pth)
+def get_database_path() -> str:
+    dir_path = user_data_dir(APPNAME, APPAUTHOR)
 
-    if not os.path.exists(pth):
-        os.makedirs(pth)
+    if not os.path.exists(dir_path):
+        os.makedirs(dir_path)
 
-    return pth
+    return os.path.join(dir_path, DB_NAME)
 
-def get_fixture_path():
-    pth = site_data_dir(APPNAME, APPAUTHOR)
-    print(pth)
-    return pth
+def get_fixture_path() -> str:
+    return site_data_dir(APPNAME, APPAUTHOR)
 
-def get_log_path():
-    pth = user_log_dir(APPNAME, APPAUTHOR)
-    print(pth)
-    return pth
+def get_log_path() -> str:
+    return user_log_dir(APPNAME, APPAUTHOR)
 
-def set_debug(debug: bool):
+def set_debug(debug: bool) -> None:
     global DEBUG
     DEBUG = debug
