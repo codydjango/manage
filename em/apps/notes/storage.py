@@ -1,44 +1,24 @@
-from em.storage import Storage, StorageInterface, ConnectionException
+from em.storage import Storage, StorageInterface
 
 
 class NoteStorage(Storage, StorageInterface):
     def __init__(self):
-        super().__init__()
-        self.table_name = 'notes'
+        super().__init__(table_name='notes')
 
     def reset(self):
-        try:
-            self.engine.execute(f'DROP TABLE IF EXISTS {self.table_name}')
-            self.engine.commit()
-        except Exception as e:
-            raise ConnectionException('error dropping table', *e.args)
-
-        try:
-            self.engine.execute(f'CREATE TABLE IF NOT EXISTS {self.table_name} (id INTEGER PRIMARY KEY AUTOINCREMENT, note TEXT, timestamp TEXT)')
-            self.engine.commit()
-        except Exception as e:
-            raise ConnectionException(f'error creating table', *e.args)
+        self.engine.execute(f'DROP TABLE IF EXISTS {self.engine.table_name}')
+        self.engine.execute(f'CREATE TABLE IF NOT EXISTS {self.engine.table_name} '
+                            f'(id INTEGER PRIMARY KEY AUTOINCREMENT, note TEXT, timestamp TEXT)')
 
     def add(self, note: str):
-        try:
-            self.engine.execute(f'INSERT INTO {self.table_name} (note, timestamp) VALUES (?, CURRENT_TIMESTAMP)', (note,))
-            self.engine.commit()
-        except Exception as e:
-            print(e)
-            raise ConnectionException('error storing item', *e.args)
+        self.engine.execute(f'INSERT INTO {self.engine.table_name} (note, timestamp) '
+                            f'VALUES (?, CURRENT_TIMESTAMP)', (note,))
 
     def remove(self, pk: str):
-        try:
-            self.engine.execute(f'DELETE FROM {self.table_name} WHERE id=(?)', (pk,))
-            self.engine.commit()
-        except Exception as e:
-            raise ConnectionException('error deleting item', *e.args)
+        self.engine.execute(f'DELETE FROM {self.engine.table_name} WHERE id=(?)', (pk,))
 
     def get(self):
         data = []
-        try:
-            for r in self.engine.execute(f'SELECT * FROM {self.table_name}'):
-                data.append(dict(r))
-            return data
-        except Exception as e:
-            raise ConnectionException('error retrieving items', *e.args)
+        for r in self.engine.execute(f'SELECT * FROM {self.engine.table_name}'):
+            data.append(dict(r))
+        return data

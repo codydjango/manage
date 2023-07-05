@@ -25,6 +25,7 @@ class App(ABC):
 
         with self.storage_cls() as store:
             store.remove(pk)
+            store.commit()
 
     def reset(self):
         if not click.confirm(f'Are you sure you want to reset the {self.__class__.__name__} table?'):
@@ -32,9 +33,12 @@ class App(ABC):
 
         with self.storage_cls() as store:
             store.reset()
-            self.log(f'{self.__class__.__name__} table reset.')
+            store.commit()
+
+        self.log(f'{self.__class__.__name__} table reset.')
 
     def export(self):
         with self.storage_cls() as store:
             store.export()
-            self.log(f'{self.__class__.__name__} exported to: {store.export_path}')
+
+        self.log(f'{self.__class__.__name__} exported to: {store.export_path}')

@@ -24,6 +24,8 @@ def output(content: List):
 
 
 class Reminder(App):
+    storage_cls = ReminderStorage
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -32,8 +34,6 @@ class Reminder(App):
         message = kwargs.get('message')
         date = kwargs.get('date')
         export = kwargs.get('export')
-
-        self.storage_cls = ReminderStorage
 
         if reset:
             self.reset()
@@ -49,6 +49,7 @@ class Reminder(App):
     def add(self, message: str, date: str):
         with self.storage_cls() as store:
             store.add(message=message, date=date)
+            store.commit()
 
     def output(self):
         with self.storage_cls() as store:

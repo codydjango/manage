@@ -8,6 +8,7 @@ click = "*"
 rich = "*"
 pyperclip = "*"
 appdirs = "*"
+python-dateutil = "*"
 
 [dev-packages]
 

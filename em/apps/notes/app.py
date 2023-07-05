@@ -27,6 +27,8 @@ def output(content: List):
     console.print(table)
 
 class Notes(App):
+    storage_cls = NoteStorage
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -35,8 +37,6 @@ class Notes(App):
         message = kwargs.get('message')
         clipboard = kwargs.get('clipboard')
         export = kwargs.get('export')
-
-        self.storage_cls = NoteStorage
 
         if reset:
             self.reset()
@@ -54,6 +54,7 @@ class Notes(App):
     def add(self, note: str):
         with self.storage_cls() as store:
             store.add(note)
+            store.commit()
 
     def output(self):
         with self.storage_cls() as store:

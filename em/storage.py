@@ -19,7 +19,8 @@ class ConnectionException(Exception):
         self.errors = errors
 
 class SqliteAdapter:
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
+        self.table_name = kwargs.get('table_name', None)
         self.conn = get_connection()
         self.conn.row_factory = sqlite3.Row
         self._complete = False
@@ -66,13 +67,12 @@ class StorageInterface(ABC):
         raise NotImplementedError()
 
 class Storage:
-    def __init__(self):
-        self.engine = SqliteAdapter()
-        self.table_name = None
+    def __init__(self, *args, **kwargs):
+        self.engine = SqliteAdapter(table_name=kwargs.get('table_name', None))
 
     @property
     def export_path(self):
-        return get_export_path(f'{self.table_name}.json')
+        return get_export_path(f'{self.engine.table_name}.json')
 
     def __enter__(self):
         return self
@@ -80,36 +80,32 @@ class Storage:
     def __exit__(self, type_, value, traceback):
         self.engine.close()
 
+    def get_all(self):
+        data = []
+        for r in self.engine.execute(
+                f'SELECT * '
+                f'FROM {self.engine.table_name} '
+                f'ORDER BY id', ()):
+            data.append(dict(r))
+        return data
+
+    def get_single(self, pk: int):
+        return dict(self.engine.execute(
+            f'SELECT * '
+            f'FROM {self.engine.table_name} '
+            f'WHERE (id = ?) ', (pk,)).fetchone())
+
+    def put(self, pk: int, dct: dict):
+        update_columns = ', '.join([f'{k} = ?' for k in dct.keys()])
+        self.engine.execute(
+            f'UPDATE {self.engine.table_name} SET {update_columns} WHERE id = ?', list(dct.values()) + [pk])
+
+    def commit(self):
+        self.engine.commit()
+
     def export(self):
-        rows = self.engine.execute(f'SELECT * FROM {self.table_name}', ()).fetchall()
+        rows = self.engine.execute(f'SELECT * FROM {self.engine.table_name}', ()).fetchall()
         with open(self.export_path, 'w') as the_file:
             for row in rows:
                 the_file.write(json.dumps(dict(row)))
                 the_file.write('\n')
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
