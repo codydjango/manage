@@ -2,7 +2,7 @@
 
 import click
 
-from em.apps import td, rm, nt, all_apps
+from em.apps import td, rm, nt, qz, all_apps
 from em.settings import set_debug
 
 
@@ -18,12 +18,16 @@ def cli(*args, **kwargs):
 def all(*args, **kwargs):
     if kwargs.get('export'):
         for app in all_apps:
-            app(export=True)
+            try:
+                app(export=True)
+            except:
+                pass
 
 def main():
     cli.add_command(nt)
     cli.add_command(td)
     cli.add_command(rm)
+    cli.add_command(qz)
     cli.add_command(all)
     cli()
 
