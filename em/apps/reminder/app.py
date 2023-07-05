@@ -13,9 +13,9 @@ console = Console()
 
 def output(content: List):
     table = Table(title=APPNAME.capitalize())
-    table.add_column("ID", justify="left", style="cyan", no_wrap=True)
-    table.add_column("Message", justify="left", style="blue")
-    table.add_column("Date", justify="left", style="green", no_wrap=True)
+    table.add_column('ID', justify='left', style='cyan', no_wrap=True)
+    table.add_column('Message', justify='left', style='blue')
+    table.add_column('Date', justify='left', style='green', no_wrap=True)
 
     for item in content:
         table.add_row(str(item['id']), str(item['message']), str(item['reminder_timestamp']))

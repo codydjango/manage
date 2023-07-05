@@ -3,6 +3,7 @@ import json
 
 from abc import ABC, abstractmethod
 from em.settings import DEBUG, get_database_path, get_export_path
+from em.exceptions import NotFoundException
 
 
 def get_connection():
@@ -90,10 +91,12 @@ class Storage:
         return data
 
     def get_single(self, pk: int):
-        return dict(self.engine.execute(
+        if (row := self.engine.execute(
             f'SELECT * '
             f'FROM {self.engine.table_name} '
-            f'WHERE (id = ?) ', (pk,)).fetchone())
+            f'WHERE (id = ?) ', (pk,)).fetchone()):
+            return dict(row)
+        raise NotFoundException(f'No {self.engine.table_name} found with id: {pk}')
 
     def put(self, pk: int, dct: dict):
         update_columns = ', '.join([f'{k} = ?' for k in dct.keys()])

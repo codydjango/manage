@@ -1,4 +1,5 @@
 import click
+from em.exceptions import NotFoundException
 from .app import Reminder
 
 
@@ -10,4 +11,7 @@ from .app import Reminder
 @click.option('-dbr', '--reset', type=click.BOOL, default=False, is_flag=True, help="Reset DB.")
 @click.option('-dbe', '--export', type=click.BOOL, default=False, is_flag=True, help="Export DB.")
 def rm(*args, **kwargs):
-    Reminder(*args, **kwargs)
+    try:
+        Reminder(*args, **kwargs)
+    except NotFoundException as e:
+        click.echo(str(e))

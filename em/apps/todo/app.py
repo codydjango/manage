@@ -1,5 +1,6 @@
 import json
 
+from functools import reduce
 from datetime import datetime
 from dateutil import parser
 from dateutil.tz import tzlocal
@@ -18,12 +19,12 @@ console = Console()
 APPNAME = 'todo'
 def output(content: List, points: int):
     table = Table(title=f'{APPNAME.capitalize()} ({points})')
-    table.add_column("ID", justify="left", style="cyan", no_wrap=True)
-    table.add_column("Weight", justify="left", style="blue", no_wrap=True)
-    table.add_column("Points", justify="left", style="blue", no_wrap=True)
-    table.add_column("Status", justify="left", style="blue", no_wrap=True)
-    table.add_column("Logged Time", justify="left", style="blue", no_wrap=True)
-    table.add_column("Task", style="magenta")
+    table.add_column('ID', justify='left', style='cyan', no_wrap=True)
+    table.add_column('Weight', justify='left', style='blue', no_wrap=True)
+    table.add_column('Points', justify='left', style='blue', no_wrap=True)
+    table.add_column('Status', justify='left', style='blue', no_wrap=True)
+    table.add_column('Logged Time', justify='left', style='blue', no_wrap=True)
+    table.add_column('Task', style='magenta')
 
     for item in content:
         status_name = TaskStatus(item['status']).name
@@ -37,8 +38,8 @@ def output(content: List, points: int):
 def output_time_logs(pk: int, content: List):
     table = Table(title=f'Logged time for item: {pk}')
 
-    table.add_column("Start", justify="left", style="cyan", no_wrap=True)
-    table.add_column("End", justify="left", style="blue", no_wrap=True)
+    table.add_column('Start', justify='left', style='cyan', no_wrap=True)
+    table.add_column('End', justify='left', style='blue', no_wrap=True)
 
     for item in content:
         row = map(str, [item['start'], item['end']])
@@ -47,22 +48,23 @@ def output_time_logs(pk: int, content: List):
     console.print(table)
 
 
+def calculate_duration(acc, time_period):
+    start_time = parser.parse(time_period['start'])
+
+    if not time_period['end']:
+        end_time = parser.parse(str(datetime.now(tzlocal())))
+    else:
+        end_time = parser.parse(time_period['end'])
+
+    return acc + (end_time - start_time).total_seconds()
+
+
 def calculate_total_logged_time(logged_time: Optional[str] = None):
     if not logged_time:
         return '0h 0m 0s'
 
     logged_time = json.loads(logged_time or '[]')
-    total_logged_time = 0
-
-    for time_period in logged_time:
-        start_time = parser.parse(time_period['start'])
-
-        if not time_period['end']:
-            end_time = parser.parse(str(datetime.now(tzlocal())))
-        else:
-            end_time = parser.parse(time_period['end'])
-
-        total_logged_time += (end_time - start_time).total_seconds()
+    total_logged_time = reduce(calculate_duration, logged_time, 0)
 
     hours, remainder = divmod(total_logged_time, 3600)
     minutes, seconds = divmod(remainder, 60)

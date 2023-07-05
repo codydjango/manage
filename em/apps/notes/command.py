@@ -1,4 +1,5 @@
 import click
+from em.exceptions import NotFoundException
 from .app import Notes
 
 
@@ -10,4 +11,7 @@ from .app import Notes
 @click.option('-dbe', '--export', type=click.BOOL, default=False, is_flag=True, help="Export DB.")
 @click.command()
 def nt(*args, **kwargs):
-    Notes(*args, **kwargs)
+    try:
+        Notes(*args, **kwargs)
+    except NotFoundException as e:
+        click.echo(str(e))

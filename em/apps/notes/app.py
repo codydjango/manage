@@ -18,8 +18,8 @@ def get_clipboard():
 
 def output(content: List):
     table = Table(title=APPNAME.capitalize())
-    table.add_column("ID", justify="left", style="cyan", no_wrap=True)
-    table.add_column("Note", style="magenta")
+    table.add_column('ID', justify='left', style='cyan', no_wrap=True)
+    table.add_column('Note', style='magenta')
 
     for item in content:
         table.add_row(str(item['id']), item['note'])

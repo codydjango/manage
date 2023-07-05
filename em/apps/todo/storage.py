@@ -8,7 +8,7 @@ from dateutil.tz import tzlocal
 
 from em.storage import Storage, StorageInterface
 from .enums import TaskStatus
-
+from em.exceptions import NotFoundException
 
 class TodoStorage(Storage, StorageInterface):
     def __init__(self):
@@ -34,6 +34,7 @@ class TodoStorage(Storage, StorageInterface):
 
     def start_timer(self, pk: int):
         row = self.get_single(pk=pk)
+        print(row)
         logged_time = json.loads(row['logged_time'] or '[]')
 
         if len(logged_time):

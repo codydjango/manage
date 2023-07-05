@@ -1,6 +1,6 @@
 import click
+from em.exceptions import NotFoundException
 from .app import Todo
-
 
 @click.option('-m', '--message', type=click.STRING, help='A message describing the Task.')
 @click.option('-w', '--weight', default=10, type=click.INT, help='Assign a Task weight.')
@@ -15,4 +15,7 @@ from .app import Todo
 @click.option('-dbe', '--export', type=click.BOOL, default=False, is_flag=True, help='Export DB.')
 @click.command()
 def td(*args, **kwargs):
-    Todo(*args, **kwargs)
+    try:
+        Todo(*args, **kwargs)
+    except NotFoundException as e:
+        click.echo(str(e))
