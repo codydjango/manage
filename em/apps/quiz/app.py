@@ -68,10 +68,11 @@ def output(content: List, title=APPNAME.capitalize()):
 
     console.print(table)
 
-def prompt(self):
+def prompt() -> None:
     challenges = copy.copy(CHALLENGES)
     results = []
-    while True:
+
+    while len(challenges):
         challenge = random.choice(challenges)
         challenges.remove(challenge)
         click.echo(challenge.question)
