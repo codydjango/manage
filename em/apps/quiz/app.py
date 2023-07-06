@@ -2,6 +2,7 @@ import random
 import copy
 import click
 
+from collections import Counter
 from em.app import App
 from typing import List
 from dataclasses import dataclass
@@ -42,17 +43,17 @@ CHALLENGES = [
               answer='150 milliseconds'),
     Challenge(question='What is the latency for reading 1mb sequentially from memory?',
               answer='250 microseconds'),
-    Challenge(question='What is the latency for reading 1mb sequentially from network?',
-              answer='10 milliseconds'),
+    # Challenge(question='What is the latency for reading 1mb sequentially from network?',
+    #           answer='10 milliseconds'),
     Challenge(question='What is the latency for reading 1mb sequentially from disk?',
               answer='30 milliseconds'),
     Challenge(question='What is the latency for a disk seek?',
               answer='10 milliseconds'),
-    Challenge(question='What factors into the round trip latency within a datacenter?',
-              answer='queuing for switches, routers, servers, serialization, transmission (pushing packet bits '
-                     'to the network link/wire), processing time'),
-    Challenge(question='What is a SMART Story?',
-              answer='Situation, Metrics/More, Action, Result, Tie-in'),
+    # Challenge(question='What factors into the round trip latency within a datacenter?',
+    #           answer='queuing for switches, routers, servers, serialization, transmission (pushing packet bits '
+    #                  'to the network link/wire), processing time'),
+    # Challenge(question='What is a SMART Story?',
+    #           answer='Situation, Metrics/More, Action, Result, Tie-in'),
     Challenge(question='What is a structured way to approach a system design interview? how long should each step take?',
               answer='15 minutes for 1) FR 2) NFR 3) Quantitative Analysis 4) HLD 5) API -> DB Schema 6) Scalability '
                      '7) Fault Tolerance 8) Q&A')
@@ -61,7 +62,7 @@ CHALLENGES = [
 def output(content: List, title=APPNAME.capitalize()):
     table = Table(title=title)
     table.add_column('Question', justify='left', style='cyan', no_wrap=True)
-    table.add_column('Passed', justify='left', style='cyan', no_wrap=True)
+    table.add_column('Attempts', justify='left', style='cyan', no_wrap=True)
 
     for item in content:
         table.add_row(str(item[0]), item[1])
@@ -71,18 +72,20 @@ def output(content: List, title=APPNAME.capitalize()):
 def prompt() -> None:
     challenges = copy.copy(CHALLENGES)
     results = []
+    attempts = Counter()
 
     while len(challenges):
         challenge = random.choice(challenges)
-        challenges.remove(challenge)
         click.echo(challenge.question)
         click.prompt('Answer')
         click.echo(challenge.answer)
         passed = click.confirm('Pass?')
-        results.append((challenge.question, str(passed)))
 
-        if not click.confirm('Continue'):
-            break
+        attempts[challenge.question] += 1
+
+        if passed:
+            challenges.remove(challenge)
+            results.append((challenge.question, str(attempts[challenge.question])))
 
     output(title=f'Quiz Results ({len(results)})', content=results)
 
