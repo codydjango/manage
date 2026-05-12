@@ -4,6 +4,9 @@ from em.storage import Storage, StorageInterface
 class NoteStorage(Storage, StorageInterface):
     def __init__(self):
         super().__init__(table_name='notes')
+        self.engine.execute(
+            f'CREATE TABLE IF NOT EXISTS {self.engine.table_name} '
+            f'(id INTEGER PRIMARY KEY AUTOINCREMENT, note TEXT, timestamp TEXT)')
 
     def reset(self):
         self.engine.execute(f'DROP TABLE IF EXISTS {self.engine.table_name}')

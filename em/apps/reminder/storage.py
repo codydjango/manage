@@ -4,6 +4,14 @@ from em.storage import Storage, StorageInterface
 class ReminderStorage(Storage, StorageInterface):
     def __init__(self):
         super().__init__(table_name='reminder')
+        self.engine.execute(
+            f'CREATE TABLE IF NOT EXISTS {self.engine.table_name} '
+            f'('
+            f'id INTEGER PRIMARY KEY AUTOINCREMENT, '
+            f'message TEXT, '
+            f'reminder_timestamp TEXT, '
+            f'timestamp TEXT'
+            f')')
 
     def reset(self):
         self.engine.execute(f'DROP TABLE IF EXISTS {self.engine.table_name}')

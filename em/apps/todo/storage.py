@@ -12,6 +12,15 @@ from .enums import TaskStatus
 class TodoStorage(Storage, StorageInterface):
     def __init__(self):
         super().__init__(table_name='todo')
+        self.engine.execute(
+            f'CREATE TABLE IF NOT EXISTS {self.engine.table_name} ('
+            f'id INTEGER PRIMARY KEY AUTOINCREMENT, '
+            f'task TEXT, '
+            f'weight INTEGER, '
+            f'points INTEGER, '
+            f'status TEXT DEFAULT \'{TaskStatus.READY}\','
+            f'timestamp TEXT, '
+            f'logged_time TEXT)')
 
     def reset(self):
         self.engine.execute(f'DROP TABLE IF EXISTS {self.engine.table_name}')
