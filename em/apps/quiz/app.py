@@ -1,7 +1,6 @@
 import random
 import copy
 import click
-
 from collections import Counter
 from em.app import App
 from typing import List
@@ -9,7 +8,6 @@ from dataclasses import dataclass
 from rich.console import Console
 from rich.table import Table
 
-from .storage import NoteStorage
 
 console = Console()
 
