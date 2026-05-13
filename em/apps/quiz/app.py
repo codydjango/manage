@@ -1,171 +1,120 @@
 import random
-import copy
 import click
 from collections import Counter
 from em.app import App
-from typing import List
-from dataclasses import dataclass
 from rich.console import Console
 from rich.table import Table
-
+from em.apps.quiz import srs
 
 console = Console()
 
 APPNAME = 'QUIZ'
 
-@dataclass(frozen=True)
-class Challenge:
-    question: str
-    answer: str
-    frequency: int = 50
-    tags: List[str] = None
 
-    @property
-    def get_tags(self):
-        return self.tags or []
+def run_session(questions, state):
+    results = []
+    attempts = Counter()
+    pool = list(questions)
 
-    def __str__(self):
-        return f'{self.question}'
+    console.print(f'\n[bold]Quiz — {len(pool)} question(s) due[/bold]\n')
 
-CHALLENGES = [
-    Challenge(tags=['em', 'networking'],
-              frequency=10,
-              question='What are the system design implications for high network bandwidth (ingress/egress)?',
-              answer='scalability: capacity planning to avoid bottlenecks \n'
-                    'cost: many cdn and cloud providers charge for bandwidth\n'
-                    'security: can be an attack vector\n'
-                    'performance: understanding pattern and volume of ingress and egress dictate CDN and caching.'),
-    Challenge(tags=['em', 'networking'],
-              frequency=10,
-              question='What are the system design implications for high network CCU?',
-              answer='many factors account for CCU -- understanding the requirements will dictate the design. \n'
-                     'scalability: webservers can handle 1000 (1024 by default in nginx) and can scale to hundreds '
-                     'of thousands. \n'
-                     'availability: a surge of connections might make it difficult to scale horizontally, as you need '
-                     'time to spin up new instances. \n'
-                     'resource management: handling many connections requires substantial cpu, memory, and '
-                     'network resources. For stateful websocket servers, the requirements will guide decisions '
-                     'about hardware sizing and costs.'),
-    Challenge(tags=['em', 'networking'],
-              frequency=10,
-              question='What is the latency for sending 2k over a 1gbps network?',
-              answer='20 microseconds'),
-    Challenge(tags=['em', 'networking'],
-              frequency=100,
-              question='What is the latency for sending a packet round trip within the same datacenter?',
-              answer='500 microseconds'),
-    Challenge(tags=['em', 'networking'],
-              frequency=100,
-              question='What is the latency for sending a packet from west coast to europe and back?',
-              answer='150 milliseconds'),
-    Challenge(tags=['em', 'networking'],
-              frequency=100,
-              question='What is the latency for reading 1mb sequentially from memory?',
-              answer='250 microseconds'),
-    Challenge(tags=['em', 'networking'],
-              frequency=50,
-              question='What is the latency for reading 1mb sequentially from network?',
-              answer='10 milliseconds'),
-    Challenge(tags=['em', 'networking'],
-              frequency=80,
-              question='What is the latency for reading 1mb sequentially from disk?',
-              answer='30 milliseconds'),
-    Challenge(tags=['em', 'networking'],
-              question='What is the latency for a disk seek?',
-              answer='10 milliseconds'),
-    # Challenge(question='What factors into the round trip latency within a datacenter?',
-    #           answer='queuing for switches, routers, servers, serialization, transmission (pushing packet bits '
-    #                  'to the network link/wire), processing time'),
-    # Challenge(question='What is a SMART Story?',
-    #           answer='Situation, Metrics/More, Action, Result, Tie-in'),
-    Challenge(frequency=20,
-              tags=['em', 'interviewing'],
-              question='What is a structured way to approach a system design interview? how long should each step take?',
-              answer='15 minutes for 1) FR 2) NFR 3) Quantitative Analysis 4) HLD 5) API -> DB Schema 6) Scalability '
-                     '7) Fault Tolerance 8) Q&A'),
-    Challenge(frequency=10,
-              tags=['em', 'databases'],
-              question='What is ACID and explain each?',
-              answer='atomic, consistent, isolation, durable'),
-    Challenge(frequency=10,
-              tags=['em', 'distributed-systems', 'scaling', 'databases'],
-              question='What are the CAP Theorem and explain each?',
-              answer='consistency, availability, partition'),
-    Challenge(frequency=10,
-              tags=[],
-              question='What is the difference between a process and a thread?',
-              answer='a process is an instance of '
-                                                                                       'a program, a thread is a '
-                                                                                       'unit of execution within a '
-                                                                                       'process'),
-    Challenge(question='What is the difference between a mutex and a semaphore?',
-              answer='A mutex is a program object that lets multiple threads share the same resource, but not '
-                     'simultaneously. mutex = mutual exclusion. '
-                     'It is created on application startup and destroyed on application shutdown. \n'
-                     'A semaphore is a program object that lets multiple threads share the same resource to some'
-                     'configured limit. It is created on application startup and destroyed on application shutdown.'
-                     'Any thread can release a semaphore -- there is no ownership rules with semaphores. A binary '
-                     'semaphore is similar to a mutex, but without the ownership rules. A semaphore is a signalling'
-                     'mechanism that is useful for syncronizing threads across processes.'),
-    Challenge(question='What are RDBMS isolation levels and explain each?',
-              answer='read uncommitted: dirty reads, non-repeatable reads, phantom reads \n'
-                     'read committed: non-repeatable reads, phantom reads \n'
-                     'repeatable read: phantom reads \n'
-                     'serializable: no dirty reads, no non-repeatable reads, no phantom reads'),
-]
+    while pool:
+        q = random.choice(pool)
+        click.echo(q['question'])
+        click.prompt('Answer', prompt_suffix='\n> ')
+        click.echo(f'\n{q["answer"]}\n')
+        passed = click.confirm('Pass?')
 
-def output(content: List, title=APPNAME.capitalize()):
-    table = Table(title=title)
-    table.add_column('Question', justify='left', style='cyan', no_wrap=True)
-    table.add_column('Attempts', justify='left', style='cyan', no_wrap=True)
+        qid = q['id']
+        attempts[qid] += 1
+        state[qid] = srs.grade_question(state[qid], passed)
 
-    for item in content:
-        table.add_row(str(item[0]), item[1])
+        if passed:
+            pool.remove(q)
+            results.append((q['question'], str(attempts[qid])))
+
+    return results
+
+
+def show_results(results):
+    table = Table(title=f'Quiz Results ({len(results)})')
+    table.add_column('Question', style='cyan')
+    table.add_column('Attempts', style='green', justify='right')
+    for question, attempts in results:
+        table.add_row(question, attempts)
+    console.print(table)
+
+
+def show_list(questions, state):
+    from datetime import date
+    today = date.today().isoformat()
+    table = Table(title='Questions')
+    table.add_column('Question', style='cyan', no_wrap=False)
+    table.add_column('Tags', style='yellow')
+    table.add_column('Active', justify='center')
+    table.add_column('Reps', justify='right')
+    table.add_column('Interval', justify='right')
+    table.add_column('Next Review', justify='right')
+
+    for q in questions:
+        s = state.get(q['id'], {})
+        active = '[green]✓[/green]' if s.get('active') else '[dim]–[/dim]'
+        reps = str(s.get('reps', 0))
+        interval = f"{s.get('interval', 1)}d" if s.get('active') else '–'
+        next_review = s.get('next_review') or '–'
+        if s.get('active') and next_review != '–' and next_review <= today:
+            next_review = f'[red]{next_review}[/red]'
+        table.add_row(
+            q['question'][:70],
+            ', '.join(q.get('tags', [])),
+            active,
+            reps,
+            interval,
+            next_review,
+        )
 
     console.print(table)
 
-def prompt(challenges) -> None:
-    results = []
-    attempts = Counter()
-
-    while len(challenges):
-        challenge = random.choice(challenges)
-        click.echo(challenge.question)
-        click.prompt('Answer')
-        click.echo(challenge.answer)
-        passed = click.confirm('Pass?')
-
-        attempts[challenge.question] += 1
-
-        if passed:
-            challenges.remove(challenge)
-            results.append((challenge.question, str(attempts[challenge.question])))
-
-    output(title=f'Quiz Results ({len(results)})', content=results)
 
 class Quiz(App):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        challenges = copy.copy(CHALLENGES)
+        tag_input = kwargs.get('tags')
+        limit = kwargs.get('limit')
+        list_mode = kwargs.get('list_mode', False)
 
-        if tags:= kwargs.get('tags', None):
-            tags = set(tags.split(' '))
-            challenges = [c for c in challenges if tags.issubset(c.get_tags)]
+        tag_list = tag_input.split() if tag_input else None
+        questions = srs.load_questions(tags=tag_list)
+        state = srs.load_state()
 
-        challenges = [c for c in challenges if c.frequency > random.randint(0, 100)]
+        srs.ensure_initialized(questions, state)
 
-        random.shuffle(challenges)
+        if list_mode:
+            show_list(questions, state)
+            srs.save_state(state)
+            return
 
-        if limit:= kwargs.get('limit', None):
-            challenges = challenges[:limit]
+        due = srs.get_due_questions(questions, state)
 
-        for challenge in challenges:
-            click.echo(str(challenge))
+        if not due:
+            console.print('[yellow]No questions due for review today.[/yellow]')
+            new_q = srs.maybe_activate_new(questions, state)
+            if new_q:
+                console.print(f'[green]Activated new question:[/green] {new_q["question"]}')
+                due = [new_q]
+            else:
+                srs.save_state(state)
+                return
 
-        prompt(challenges)
+        if limit:
+            due = due[:limit]
 
+        results = run_session(due, state)
 
+        new_q = srs.maybe_activate_new(questions, state)
+        if new_q:
+            console.print(f'\n[green]New question added to rotation:[/green] {new_q["question"]}')
 
-
-
+        srs.save_state(state)
+        show_results(results)
