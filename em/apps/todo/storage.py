@@ -107,5 +107,5 @@ class TodoStorage(Storage, StorageInterface):
     def get_points(self):
         row = self.engine.execute(f'SELECT SUM(points) '
                                   f'FROM {self.engine.table_name} '
-                                  f'WHERE status = {TaskStatus.COMPLETED}', ()).fetchone()
+                                  f'WHERE status = ?', (TaskStatus.COMPLETED,)).fetchone()
         return row[0]
